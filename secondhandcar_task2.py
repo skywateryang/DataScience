@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Tianchi secondhand car saleprice prediction
+# link:  https://tianchi.aliyun.com/competition/entrance/231784/introduction
 # -  Second part - EDA
 
 
@@ -11,8 +12,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import scipy.stats as st
 import numpy as np
-pd.set_option('display.max_columns',50)
 
+
+pd.set_option('display.max_columns', 50)
 
 # 2.2 import train and test data
 # --------------------------------------------------------------------------------------#
@@ -133,17 +135,40 @@ train.offerType.value_counts()
 # create date, none of the samples share the same value --> delete later
 train.creatDate.value_counts()
 
-
 # 2.5 Study the distribution of response
 # --------------------------------------------------------------------------------------#
 # skewed distribution with long tail
 train.price.hist(bins=100)
 
 # well fit as normal dist after log
-sns.distplot(np.log(train.price), kde=False, color="b",fit=st.norm)
+sns.distplot(np.log(train.price), kde=False, color="b", fit=st.norm)
 
-
-# 2.6 analysis of float type features
+# 2.6 analysis of numerical type features
 # --------------------------------------------------------------------------------------#
 
+numeric_features = ['power', 'kilometer', 'v_0', 'v_1', 'v_2', 'v_3', 'v_4', 'v_5', 'v_6', 'v_7', 'v_8', 'v_9', 'v_10',
+                    'v_11', 'v_12', 'v_13', 'v_14','price']
 
+categorical_features = ['model', 'brand', 'bodyType', 'fuelType', 'gearbox', 'notRepairedDamage']
+
+# correlation with response
+correlation  = train[numeric_features].corr()
+print(correlation['price'].sort_values(ascending = False),'\n')
+
+# feature heatmap
+sns.heatmap(correlation,square = True)
+
+# vis of distribution for each feature
+# f = pd.melt(train, value_vars=numeric_features)
+# g = sns.FacetGrid(f, col="variable",  col_wrap=2, sharex=False, sharey=False)
+# g = g.map(sns.distplot, "value")
+
+# vis of pairwise distribution
+# sns.pairplot(train[numeric_features],kind ='scatter',diag_kind='kde')
+
+
+# 2.7 analysis of categorical type features
+# --------------------------------------------------------------------------------------#
+f = pd.melt(train, id_vars=['price'], value_vars=categorical_features)
+g = sns.FacetGrid(f, col="variable",  col_wrap=2, sharex=False, sharey=False)
+g = g.map(sns.boxplot, "value", "price")
